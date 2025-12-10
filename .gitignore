@@ -1,0 +1,69 @@
+# ----------------------------------------
+# Node
+# ----------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# ----------------------------------------
+# Build output (Webpack)
+# ----------------------------------------
+dist/
+build/
+
+# Source maps (если не хочешь пушить)
+*.map
+
+# ----------------------------------------
+# OS / Editor garbage
+# ----------------------------------------
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# ----------------------------------------
+# IDEs
+# ----------------------------------------
+
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# JetBrains (WebStorm)
+.idea/
+*.iml
+out/
+
+# ----------------------------------------
+# Logs
+# ----------------------------------------
+logs/
+*.log
+logs/*.log
+
+# ----------------------------------------
+# Optional caches
+# ----------------------------------------
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
