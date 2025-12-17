@@ -27,15 +27,15 @@ function LoginForm() {
   }
 
   const handleRegister = (e) => {
-    console.log('Registration...');
-    // navigate("/register");
+    // console.log('Registration...');
+    navigate("/register");
   }
 
   return (
     <>
       <div className="login-form">
         <div className="login-form__container">
-        <h2 className="login-form__title">Login/Register</h2>
+        <h2 className="login-form__title">Login</h2>
         <form className="login-form__form" onSubmit={handleSubmit}>
           <div className="input-columns">
             <input

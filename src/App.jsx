@@ -3,6 +3,7 @@ import './styles/App.scss';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
+import RegisterPage from './pages/RegisterPage.jsx'
 
 function App() {
   return (
@@ -13,6 +14,8 @@ function App() {
         <Route path="/home" element={<HomePage />} />
 
         <Route path="/login" element={<LoginPage />} />
+
+        <Route path="/register" element={<RegisterPage />}/>
       </Routes>
     </BrowserRouter>
   );
