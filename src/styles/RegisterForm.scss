@@ -94,6 +94,16 @@
       &:focus {
         outline: none;
       }
+
+      &__error {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        font-size: 14px;
+        text-align: center;
+      }
     }
   }
 }
