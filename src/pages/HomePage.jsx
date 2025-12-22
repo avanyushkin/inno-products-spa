@@ -1,11 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Header from '../components/Header.jsx';
+import ProductCard from '../components/ProductCard.jsx';
+import ProductList from '../components/ProductList.jsx';
 
 function HomePage() {
   return (
     <>
-      <h1>Welcome!</h1>
-      <Link to='/login'>Login link</Link>
+      <Header />
+      <ProductCard />
+      <ProductList />
     </>
   );
 }
