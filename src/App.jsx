@@ -1,13 +1,23 @@
-import React, { useState } from 'react';
-// import './App.scss';
+import React from 'react';
+import './styles/App.scss';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import HomePage from './pages/HomePage.jsx'
+import LoginPage from './pages/LoginPage.jsx'
+import RegisterPage from './pages/RegisterPage.jsx'
 
 function App() {
   return (
-    <>
-      <div className="app">
-        Check
-      </div>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="login" replace />}/>
+
+        <Route path="/home" element={<HomePage />} />
+
+        <Route path="/login" element={<LoginPage />} />
+
+        <Route path="/register" element={<RegisterPage />}/>
+      </Routes>
+    </BrowserRouter>
   );
 }
 

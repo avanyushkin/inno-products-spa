@@ -17,6 +17,7 @@ module.exports = {
     port: 3000,
     open: true,
     hot: true,
+    historyApiFallback: true,
   },
   
   module: {
@@ -32,8 +33,17 @@ module.exports = {
         }
       },
       {
-        test: /\.s[ac]ss$/i,
-        use: ['style-loader', 'css-loader', 'sass-loader'],
+        test: /\.scss$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              warnRuleAsWarning: false
+            }
+          }
+        ]
       },
       {
         test: /\.css$/i,
