@@ -4,7 +4,7 @@ import '../styles/RegisterForm.scss';
 
 function RegisterForm() {
   const [formData, setFormData] = useState({
-    login: "",
+    username: "",
     password: "",
     confirmPassword: ""
   });
@@ -85,8 +85,8 @@ function RegisterForm() {
           <div className="input-columns__register">
             <input
               type="text"
-              name="login"
-              value={formData.login}
+              name="username"
+              value={formData.username}
               onChange={handleChange}
               placeholder="Login"
               className="register-form__input"

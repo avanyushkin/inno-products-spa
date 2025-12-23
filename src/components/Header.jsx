@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'; // Добавь useRef и useEffect
+import React, { useState, useRef, useEffect } from 'react';
 import '../styles/Header.scss';
 import { useNavigate } from 'react-router-dom';
 import { FaShoppingCart, FaUserCircle, FaUserPlus, FaSignOutAlt } from 'react-icons/fa';
