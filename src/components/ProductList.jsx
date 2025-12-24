@@ -1,5 +1,7 @@
 import React from 'react';
 import { useDummyJSON } from '../utils/api.js';
+import ProductCard from './ProductCard.jsx';
+import '../styles/ProductList.scss';
 
 function ProductList() {
   const {data, loading, error} = useDummyJSON('/products', { limit: 30 });
@@ -22,12 +24,13 @@ function ProductList() {
 
   return (
     <>
-      {data.products.map(product => (
-        <div key={product.id}>
-          <h3>{product.title}</h3>
-          <p>{product.price}</p>
-        </div>
-      ))}
+      <div className='product-list'>
+        {data.products.map(product => {
+          return (
+            <ProductCard key={product.id} product={product} />
+          );
+        })}
+      </div>
     </>
   );
 }
