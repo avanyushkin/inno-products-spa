@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import '../styles/Header.scss';
 import { useNavigate } from 'react-router-dom';
 import { FaShoppingCart, FaUserCircle, FaUserPlus, FaSignOutAlt } from 'react-icons/fa';
 
-function Header() {
+function Header({ onSearch = () => {} }) {
   const [searchInput, setSearchInput] = useState("");
   const [showUserMenu, setShowUserMenu] = useState(false);
   const navigate = useNavigate();
@@ -48,6 +48,20 @@ function Header() {
     };
   }, []);
 
+  const debounce = (f, n) => {
+    let t;
+    return (...args) => {
+      clearTimeout(t);
+      t = setTimeout(() => f(...args), n);
+    }
+  }
+
+  const debouncedSearch = useCallback(
+    debounce((x) => {
+      if (onSearch) onSearch(x);
+    }, 100), [onSearch]
+  );
+
   return (
     <>
       <div className="header">
@@ -55,7 +69,10 @@ function Header() {
           <input 
             type="search"
             value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
+            onChange={(e) => {
+              setSearchInput(e.target.value);
+              debouncedSearch(e.target.value);
+            }}
             placeholder="Search products..."
           />
         </div>
