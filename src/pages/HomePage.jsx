@@ -1,11 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import Header from '../components/Header.jsx';
+import ProductList from '../components/ProductList.jsx';
 
 function HomePage() {
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+  };
+
   return (
     <>
-      <h1>Welcome!</h1>
-      <Link to='/login'>Login link</Link>
+      <Header onSearch = {handleSearch} />
+      <ProductList searchTerm = {searchTerm} />
     </>
   );
 }

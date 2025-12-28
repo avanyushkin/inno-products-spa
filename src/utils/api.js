@@ -1,29 +1,29 @@
-const API_URL = 'http://localhost:3001';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
-export const authAPI = {
-  async login(credentials) {
-    const response = await fetch(`${API_URL}/users`);
-    const users = await response.json();
-    
-    return users.find(u => u.username === credentials.login && u.password === credentials.password);
-  },
-  
-  async register(userData) {
-    const response = await fetch(`${API_URL}/users`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(userData),
-    });
-    
-    return await response.json();
-  },
-  
-  async checkUserExists(username) {
-    const response = await fetch(`${API_URL}/users`);
-    const users = await response.json();
-    
-    return users.find(u => u.username === username);
-  }
-};
+const DUMMY_URL = 'https://dummyjson.com';
+
+export const useDummyJSON = (endpoint, params = {}) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async() => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${DUMMY_URL}${endpoint}`, { params });
+        setData(response.data);
+      } catch(err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [endpoint, JSON.stringify(params)]);
+
+  return {data, loading, error};
+}
+
