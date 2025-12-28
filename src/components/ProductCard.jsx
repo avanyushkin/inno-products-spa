@@ -1,35 +1,29 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/Card.scss';
+import { Card, CardMedia, CardContent, Typography, Button, Box} from '@mui/material';
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
-  
-  const handleCardClick = () => {
-    navigate(`/product/${product.id}`);
-  };
-  
+
   return (
-    <div className='card' onClick={handleCardClick}>
-      <div className='image__container'>
-        <img src={product.images} alt={product.title} className='image' />
-      </div>
-      <div className='content'>
-        <h3 className='title'>{product.title}</h3>
-        <p className='category'>{product.category}</p>
-
-        <div className='rating'>
-          {'★'.repeat(Math.round(product.rating))}
-          {'☆'.repeat(5 - Math.round(product.rating))}
-          <span className='rating__value'>({product.rating})</span>
-        </div>
-
-        <div className='price__container'>
-          <span className='price'>${product.price}</span>
-          <button className='button'>View Details</button>
-        </div>
-      </div>
-    </div>
+    <Card 
+      sx={{ height: '100%', display: 'flex', flexDirection: 'column', cursor: 'pointer', '&:hover': { boxShadow: 3 } }}
+      onClick={() => navigate(`/product/${product.id}`)}
+    >
+      <CardMedia component="img" height="200" image={product.images} alt={product.title} sx={{ objectFit: 'contain', bgcolor: '#f5f5f5' }} />
+      
+      <CardContent sx={{ flexGrow: 1 }}>
+        <Typography variant="subtitle1" gutterBottom> {product.title} </Typography>
+        
+        <Typography variant="body2" color="text.secondary" gutterBottom> {product.category} </Typography>
+        
+        <Typography variant="h6" color="primary" sx={{ mt: 2 }}> ${product.price} </Typography>
+      </CardContent>
+      
+      <Box sx={{ p: 2, pt: 0 }}>
+        <Button fullWidth variant="contained" onClick={(e) => e.stopPropagation()}> View Details </Button>
+      </Box>
+    </Card>
   );
 };
 
