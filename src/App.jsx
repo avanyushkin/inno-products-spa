@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import CartPage from './pages/CartPage.jsx';
+import ProductDetail from './components/ProductDetail.jsx';
 
 function App() {
   return (
@@ -19,6 +20,8 @@ function App() {
         <Route path="/register" element={<RegisterPage />}/>
 
         <Route path="/cart" element={<CartPage />}/>
+
+        <Route path="/product/:id" element={<ProductDetail />} />
       </Routes>
     </BrowserRouter>
   );
