@@ -1,117 +1,105 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import '../styles/Header.scss';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaShoppingCart, FaUserCircle, FaUserPlus, FaSignOutAlt } from 'react-icons/fa';
+import { AppBar, Toolbar, TextField, IconButton, Typography, Box, Menu, MenuItem } from '@mui/material';
+import { Search, ShoppingCart, Person } from '@mui/icons-material';
 
 function Header({ onSearch = () => {} }) {
-  const [searchInput, setSearchInput] = useState("");
-  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
+  const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
-  
-  const handleClearSearchInput = () => {
-    setSearchInput("");
-  };
-  
-  const handleCartClick = () => {
-    navigate("/cart");
-  };
-
   const currentUser = JSON.parse(localStorage.getItem('currentUser'));
   const isLoggedIn = !!currentUser;
-  
-  const handleLogout = () => {
-    localStorage.removeItem('currentUser');
-    navigate("/login");
-    setShowUserMenu(false);
-  };
-  
-  const handleUserClick = () => {
-    if (isLoggedIn) {
-      setShowUserMenu(!showUserMenu);
-    } else {
-      navigate("/register");
-    }
-  };
-  
-  const menuRef = useRef(null);
-  
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setShowUserMenu(false);
-      }
-    };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
-  const debounce = (f, n) => {
-    let t;
+  const debounce = (func, delay) => {
+    let timeout;
     return (...args) => {
-      clearTimeout(t);
-      t = setTimeout(() => f(...args), n);
-    }
-  }
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), delay);
+    };
+  };
 
   const debouncedSearch = useCallback(
-    debounce((x) => {
-      if (onSearch) onSearch(x);
-    }, 100), [onSearch]
+    debounce((searchTerm) => {
+      onSearch(searchTerm);
+    }, 300),
+    [onSearch]
   );
 
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchInput(value);
+    debouncedSearch(value);
+  };
+
+  const handleCartClick = () => {
+    navigate('/cart');
+  };
+
+  const handleUserMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleUserMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('currentUser');
+    navigate('/login');
+    handleUserMenuClose();
+  };
+
+  const handleProfileClick = () => {
+    handleUserMenuClose();
+  };
+
   return (
-    <>
-      <div className="header">
-        <div className="search-container">
-          <input 
-            type="search"
-            value={searchInput}
-            onChange={(e) => {
-              setSearchInput(e.target.value);
-              debouncedSearch(e.target.value);
+    <AppBar position="sticky">
+      <Toolbar sx={{ gap: 2 }}>
+        <Typography variant="h6" sx={{ cursor: 'pointer', flexShrink: 0 }} onClick={() => navigate('/home')}>
+          Shop
+        </Typography>
+        
+        <TextField size="small" placeholder="Search..." value={searchInput} onChange={handleSearchChange}
+          sx={{ 
+            flexGrow: 1, 
+            backgroundColor: 'white', 
+            borderRadius: 1,
+            '& .MuiOutlinedInput-root': {
+              height: 40,
+            }
+          }}
+        />
+        
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <IconButton color="inherit" onClick={handleCartClick}>
+            <ShoppingCart />
+          </IconButton>
+          <IconButton 
+            color="inherit" 
+            onClick={(e) => {
+              if (isLoggedIn) {
+                handleUserMenuOpen(e);
+              } else {
+                navigate('/login');
+              }
             }}
-            placeholder="Search products..."
-          />
-        </div>
+          >
+            <Person />
+          </IconButton>
+        </Box>
 
-        <div className="icons-container">
-          <div className="icon-wrapper" onClick={handleCartClick}>
-            <FaShoppingCart size={28} color="blue" />
-          </div>
-
-          <div className="user-menu-container" ref={menuRef}>
-            <div className="icon-wrapper" onClick={handleUserClick}>
-              {isLoggedIn ? (
-                <>
-                  <FaUserCircle size={28} color="green" />
-                  <span className="username">{currentUser.username}</span>
-                </>
-              ) : (
-                <FaUserPlus size={28} color="blue" />
-              )}
-            </div>
-            
-            {isLoggedIn && showUserMenu && (
-              <div className="dropdown-menu">
-                <div className="menu-item user-info">
-                  <FaUserCircle size={20} />
-                  <span>{currentUser.username}</span>
-                </div>
-                <div className="menu-divider"></div>
-                <div className="menu-item logout-item" onClick={handleLogout}>
-                  <FaSignOutAlt size={20} />
-                  <span>Logout</span>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </>
-  );    
+        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleUserMenuClose}>
+          <MenuItem onClick={handleProfileClick}>
+            Profile ({currentUser?.username})
+          </MenuItem>
+          <MenuItem onClick={handleLogout}>
+            Logout
+          </MenuItem>
+        </Menu>
+      </Toolbar>
+    </AppBar>
+  );
 }
 
 export default Header;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/RegisterForm.scss';
+import { Box, TextField, Button, Typography, Paper } from '@mui/material';
 
 function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -19,18 +19,19 @@ function RegisterForm() {
       ...prev,
       [name]: value
     }));
-    setError("");
-  }
+    if (error) setError("");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (formData.password !== formData.confirmPassword) {
-      setError('passwords do not match');
+      setError('Passwords do not match');
       return;
     }
     
     setLoading(true);
+    setError("");
     
     try {
       const checkResponse = await fetch('http://localhost:3001/users');
@@ -39,7 +40,7 @@ function RegisterForm() {
       const existingUser = users.find(it => it.username === formData.username);
       
       if (existingUser) {
-        setError('already have user with such name');
+        setError('Username already exists');
         return;
       }
       
@@ -60,82 +61,47 @@ function RegisterForm() {
       if (response.ok) {
         navigate('/login');
       } else {
-        throw new Error('Something went wrong...');
+        setError('Registration failed');
       }
     } catch (err) {
-      console.error(err);
-      setError('try again');
+      setError('Connection error');
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="register-form">
-      <div className="register-form__container">
-        <h2 className="register-form__title">Register</h2>
-        
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', p: 2, }} >
+      <Paper elevation={2} sx={{ p: 4, width: '100%', maxWidth: 400, }} >
+        <Typography variant="h5" align="center" sx={{ mb: 3 }}>Create Account</Typography>
+
         {error && (
-          <div className="register-form__error">
-            {error}
-          </div>
+          <Typography color="error" align="center" sx={{ mb: 2 }}> {error} </Typography>
         )}
-        
-        <form className="register-form__form" onSubmit={handleSubmit}>
-          <div className="input-columns__register">
-            <input
-              type="text"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              placeholder="Login"
-              className="register-form__input"
-              disabled={loading}
-              required
-            />
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="New password"
-              className="register-form__input"
-              disabled={loading}
-              required
-            />
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="Confirm password"
-              className="register-form__input"
-              disabled={loading}
-              required
-            />
-          </div>
+
+        <Box component="form" onSubmit={handleSubmit}>
+          <TextField fullWidth label="Username" name="username" value={formData.username} onChange={handleChange}
+            disabled={loading} sx={{ mb: 2 }} error={!!error && error.includes('Username')}
+          />
           
-          <div className="register-form__button">
-            <button 
-              type="submit" 
-              className="register-form__button register-form__button--submit"
-              disabled={loading}
-            >
-              {loading ? 'Processing...' : 'Register'}
-            </button>
-          </div>
-        </form>
-        
-        <div className="register-form__back-button">
-          <button 
-            onClick={() => navigate('/login')}
-            disabled={loading}
-          >
+          <TextField fullWidth label="Password" type="password" name="password" value={formData.password}
+            onChange={handleChange} disabled={loading}  sx={{ mb: 2 }} error={!!error && error.includes('Password')}
+          />
+          
+          <TextField fullWidth label="Confirm Password" type="password" name="confirmPassword" value={formData.confirmPassword}
+            onChange={handleChange} disabled={loading} sx={{ mb: 3 }} error={!!error && error.includes('match')}
+          />
+          
+          <Button type="submit" fullWidth variant="contained" disabled={loading}>
+            {loading ? 'Creating Account...' : 'Create Account'}
+          </Button>
+
+          <Button fullWidth variant="text" onClick={() => navigate('/login')} disabled={loading} sx={{ mt: 2 }} >
             Back to Login
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </Box>
+      </Paper>
+    </Box>
   );
 }
 

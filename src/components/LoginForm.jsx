@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/LoginForm.scss';
+import { Box, TextField, Button, Alert, Typography, Paper } from '@mui/material';
+import { Login as LoginIcon } from '@mui/icons-material';
 
 function LoginForm() {
   const [formData, setFormData] = useState({
-    login : "",
-    password : ""
+    login: "",
+    password: ""
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -19,7 +20,7 @@ function LoginForm() {
       [name]: value
     }));
     setError("");
-  }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,72 +37,46 @@ function LoginForm() {
         localStorage.setItem('currentUser', JSON.stringify(user));
         navigate("/home");
       } else {
-        setError("incorrect login or password");
+        setError("Incorrect login or password");
       }
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }
-
-  const handleRegister = () => {
-    navigate("/register");
-  }
+  };
 
   return (
-    <div className="login-form">
-      <div className="login-form__container">
-        <h2 className="login-form__title">Login/Register</h2>
-        
+    <Box
+      sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', p: 2 }}
+    >
+      <Paper
+        elevation={2}
+        sx={{ p: 4, width: '100%', maxWidth: 400 }}
+      >
+        <Typography variant="h5" align="center" sx={{ mb: 3 }}>Sign In</Typography>
+
         {error && (
-          <div className="login-form__error">
+          <Alert severity="error" sx={{ mb: 2 }}>
             {error}
-          </div>
+          </Alert>
         )}
-        
-        <form className="login-form__form" onSubmit={handleSubmit}>
-          <div className="login-form__input-group">
-            <input
-              type="text"
-              name="login"
-              value={formData.login}
-              onChange={handleChange}
-              placeholder="Login"
-              className="login-form__input"
-              disabled={loading}
-            />
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Password"
-              className="login-form__input"
-              disabled={loading}
-            />
-          </div>
+
+        <Box component="form" onSubmit={handleSubmit}>
+          <TextField fullWidth label="Username" name="login" value={formData.login} onChange={handleChange} disabled={loading} sx={{ mb: 2 }} />
           
-          <div className="login-form__buttons">
-            <button 
-              type="submit" 
-              className="login-form__button login-form__button--submit"
-              disabled={loading || !formData.login || !formData.password}
-            >
-              {loading ? 'Loading...' : 'Login'}
-            </button>
-            <button 
-              type="button" 
-              className="login-form__button login-form__button--secondary"
-              onClick={handleRegister}
-              disabled={loading}
-            >
-              Register
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+          <TextField fullWidth label="Password" type="password" name="password" value={formData.password} onChange={handleChange} disabled={loading} sx={{ mb: 3 }}/>
+          
+          <Button type="submit" fullWidth variant="contained" disabled={loading || !formData.login || !formData.password} startIcon={<LoginIcon />}>
+            {loading ? 'Signing In...' : 'Sign In'}
+          </Button>
+
+          <Button fullWidth variant="text" onClick={() => navigate("/register")} disabled={loading} sx={{ mt: 2 }}>
+            Create Account
+          </Button>
+        </Box>
+      </Paper>
+    </Box>
   );
 }
 
