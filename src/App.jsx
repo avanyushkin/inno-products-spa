@@ -7,7 +7,7 @@ import HomePage from './pages/HomePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import CartPage from './pages/CartPage.jsx';
-import ProductDetail from './components/ProductDetail.jsx';
+import ProductDetail from './components/product/ProductDetail.jsx';
 import './styles/App.scss';
 
 function App() {

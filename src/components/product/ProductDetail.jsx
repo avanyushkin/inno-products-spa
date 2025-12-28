@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useDummyJSON } from '../utils/api.js';
-import Header from './Header.jsx';
+import { useDummyJSON } from '../../utils/api.js';
+import Header from '../Header.jsx';
 import { Box, Typography, Button, Rating } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header.jsx';
-import ProductList from '../components/ProductList.jsx';
+import ProductList from '../components/product/ProductList.jsx';
 
 function HomePage() {
 
