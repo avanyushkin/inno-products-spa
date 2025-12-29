@@ -1,0 +1,4 @@
+[[redirects]]
+  from = "/*"
+  to = "./src/template.html"
+  status = 200
