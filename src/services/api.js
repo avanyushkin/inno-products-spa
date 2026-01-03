@@ -1,8 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-export const dummyjsonApi = createApi({
+export const dummyJsonApi = createApi({
   reducerPath: 'dummyJsonApi',
-  baseQuery: fetchBaseQuery({
+  baseQuery: fetchBaseQuery({ 
     baseUrl: 'https://dummyjson.com/',
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
@@ -14,6 +14,7 @@ export const dummyjsonApi = createApi({
   }),
   tagTypes: ['Product', 'User', 'Auth'],
   endpoints: (builder) => ({
+    
     getProducts: builder.query({
       query: ({ limit = 30, skip = 0, search = '' } = {}) => {
         if (search) {
@@ -21,47 +22,51 @@ export const dummyjsonApi = createApi({
         }
         return `products?limit=${limit}&skip=${skip}`;
       },
-      providesTags: (res) => res ? [...res.products.map(({ id }) => ({ type: 'Product', id })),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.products.map(({ id }) => ({ type: 'Product', id })),
               { type: 'Product', id: 'LIST' },
-            ] : [{ type: 'Product', id: 'LIST' }],
+            ]
+          : [{ type: 'Product', id: 'LIST' }],
     }),
 
     getProduct: builder.query({
-        query: (id) => `products/${id}`,
-        providesTags: (result, error, id) => [{ type: 'Product', id}],
-
+      query: (id) => `products/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Product', id }],
     }),
 
     getProductsByCategory: builder.query({
-        query: (category) => `products/category/${category}`,
-        providesTags: (result) => result ?
-        [...result.products.map(({id}) => ({type: 'Product', id})),
-            {type: 'Product', id: 'CATEGORY_LIST'},
-        ] : [{ type: 'Product', id: 'CATEGORY_LIST'}],
+      query: (category) => `products/category/${category}`,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.products.map(({ id }) => ({ type: 'Product', id })),
+              { type: 'Product', id: 'CATEGORY_LIST' },
+            ]
+          : [{ type: 'Product', id: 'CATEGORY_LIST' }],
     }),
 
     getCategories: builder.query({
-        query: () => 'products/categories',
+      query: () => 'products/categories',
     }),
 
-    login: builder.mutations({
-        query: (credentals) => ({
-            url: 'auth/login',
-            method: 'POST',
-            body: credentials,
-        }),
-        invalidatesTags: ['Auth'],
+    login: builder.mutation({
+      query: (credentials) => ({
+        url: 'auth/login',
+        method: 'POST',
+        body: credentials,
+      }),
+      invalidatesTags: ['Auth'],
     }),
 
     getCurrentUser: builder.query({
-        query: () => ({
-            url: 'auth/me',
-            headers: {
-
-            },
-        }),
-        providesTags: ['Auth'],
+      query: () => ({url: 'auth/me',
+        headers: {},
+      }),
+      providesTags: ['Auth'],
     }),
+
     getUsers: builder.query({
       query: ({ limit = 0, skip = 0 } = {}) => 
         `users${limit ? `?limit=${limit}&skip=${skip}` : ''}`,
@@ -73,11 +78,13 @@ export const dummyjsonApi = createApi({
             ]
           : [{ type: 'User', id: 'LIST' }],
     }),
+
     getUser: builder.query({
       query: (id) => `users/${id}`,
       providesTags: (result, error, id) => [{ type: 'User', id }],
     }),
-     addProduct: builder.mutation({
+
+    addProduct: builder.mutation({
       query: (product) => ({
         url: 'products/add',
         method: 'POST',
@@ -85,6 +92,7 @@ export const dummyjsonApi = createApi({
       }),
       invalidatesTags: [{ type: 'Product', id: 'LIST' }],
     }),
+
     updateProduct: builder.mutation({
       query: ({ id, ...updates }) => ({
         url: `products/${id}`,
@@ -93,6 +101,7 @@ export const dummyjsonApi = createApi({
       }),
       invalidatesTags: (result, error, { id }) => [{ type: 'Product', id }],
     }),
+
     deleteProduct: builder.mutation({
       query: (id) => ({
         url: `products/${id}`,
