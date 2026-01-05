@@ -1,11 +1,14 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
+import { authService } from '../utils/auth';
 
-function ProtectedRoute ({ children }) {
-  const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-  if (!currentUser) {
+function ProtectedRoute({ children }) {
+  const isAuthenticated = authService.isAuthenticated();
+  
+  if (!isAuthenticated) {
     return <Navigate to='/login' replace />;
   }
+  
   return children;
 }
 

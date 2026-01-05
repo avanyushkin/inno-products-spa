@@ -2,16 +2,19 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, TextField, Button, Alert, Typography, Paper } from '@mui/material';
 import { Login as LoginIcon } from '@mui/icons-material';
+import { useLoginMutation } from '../../services/api';
+import { authService } from '../../utils/auth';
 
 function LoginForm() {
   const [formData, setFormData] = useState({
-    login: "",
+    username: "",
     password: ""
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const [login] = useLoginMutation();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,19 +31,18 @@ function LoginForm() {
     setError("");
 
     try {
-      const response = await fetch('http://localhost:3001/users');
-      const users = await response.json();
+      const result = await login({
+        username: formData.username,
+        password: formData.password
+      }).unwrap();
+
+      authService.setCurrentUser(result);
       
-      const user = users.find(u => u.username === formData.login && u.password === formData.password);
+      navigate("/home");
       
-      if (user) {
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        navigate("/home");
-      } else {
-        setError("Incorrect login or password");
-      }
     } catch (err) {
-      console.error(err);
+      console.error('Login error:', err);
+      setError(err.data?.message || "Incorrect username or password");
     } finally {
       setLoading(false);
     }
@@ -63,15 +65,44 @@ function LoginForm() {
         )}
 
         <Box component="form" onSubmit={handleSubmit}>
-          <TextField fullWidth label="Username" name="login" value={formData.login} onChange={handleChange} disabled={loading} sx={{ mb: 2 }} />
+          <TextField 
+            fullWidth 
+            label="Username" 
+            name="username" 
+            value={formData.username} 
+            onChange={handleChange} 
+            disabled={loading} 
+            sx={{ mb: 2 }} 
+          />
           
-          <TextField fullWidth label="Password" type="password" name="password" value={formData.password} onChange={handleChange} disabled={loading} sx={{ mb: 3 }}/>
+          <TextField 
+            fullWidth 
+            label="Password" 
+            type="password" 
+            name="password" 
+            value={formData.password} 
+            onChange={handleChange} 
+            disabled={loading} 
+            sx={{ mb: 3 }}
+          />
           
-          <Button type="submit" fullWidth variant="contained" disabled={loading || !formData.login || !formData.password} startIcon={<LoginIcon />}>
+          <Button 
+            type="submit" 
+            fullWidth 
+            variant="contained" 
+            disabled={loading || !formData.username || !formData.password} 
+            startIcon={<LoginIcon />}
+          >
             {loading ? 'Signing In...' : 'Sign In'}
           </Button>
 
-          <Button fullWidth variant="text" onClick={() => navigate("/register")} disabled={loading} sx={{ mt: 2 }}>
+          <Button 
+            fullWidth 
+            variant="text" 
+            onClick={() => navigate("/register")} 
+            disabled={loading} 
+            sx={{ mt: 2 }}
+          >
             Create Account
           </Button>
         </Box>

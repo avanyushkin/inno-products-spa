@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, TextField, Button, Typography, Paper } from '@mui/material';
+import { Box, TextField, Button, Typography, Paper, Alert } from '@mui/material';
 
 function RegisterForm() {
   const [formData, setFormData] = useState({
     username: "",
+    email: "",
     password: "",
-    confirmPassword: ""
+    firstName: "",
+    lastName: "",
+    age: ""
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -24,9 +27,14 @@ function RegisterForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    if (!formData.email.includes('@')) {
+      setError('Please enter a valid email');
+      return;
+    }
     
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters');
       return;
     }
     
@@ -34,34 +42,27 @@ function RegisterForm() {
     setError("");
     
     try {
-      const checkResponse = await fetch('http://localhost:3001/users');
-      const users = await checkResponse.json();
-      
-      const existingUser = users.find(it => it.username === formData.username);
-      
-      if (existingUser) {
-        setError('Username already exists');
-        return;
-      }
-      
-      const newUser = {
-        id: Date.now(),
-        username: formData.username,
-        password: formData.password
-      };
-      
-      const response = await fetch('http://localhost:3001/users', {
+      const response = await fetch('https://dummyjson.com/users/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(newUser),
+        body: JSON.stringify({
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          age: parseInt(formData.age) || 0
+        }),
       });
       
-      if (response.ok) {
+      const data = await response.json();
+      
+      if (response.ok && data.id) {
         navigate('/login');
       } else {
-        setError('Registration failed');
+        setError(data.message || 'Registration failed');
       }
     } catch (err) {
       setError('Connection error');
@@ -71,32 +72,99 @@ function RegisterForm() {
   };
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', p: 2, }} >
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', p: 2 }} >
       <Paper elevation={2} sx={{ p: 4, width: '100%', maxWidth: 400, }} >
         <Typography variant="h5" align="center" sx={{ mb: 3 }}>Create Account</Typography>
 
         {error && (
-          <Typography color="error" align="center" sx={{ mb: 2 }}> {error} </Typography>
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
         )}
 
         <Box component="form" onSubmit={handleSubmit}>
-          <TextField fullWidth label="Username" name="username" value={formData.username} onChange={handleChange}
-            disabled={loading} sx={{ mb: 2 }} error={!!error && error.includes('Username')}
+          <TextField 
+            fullWidth 
+            label="Username *" 
+            name="username" 
+            value={formData.username} 
+            onChange={handleChange}
+            disabled={loading} 
+            sx={{ mb: 2 }} 
+            required
           />
           
-          <TextField fullWidth label="Password" type="password" name="password" value={formData.password}
-            onChange={handleChange} disabled={loading}  sx={{ mb: 2 }} error={!!error && error.includes('Password')}
+          <TextField 
+            fullWidth 
+            label="Email *" 
+            name="email" 
+            type="email"
+            value={formData.email} 
+            onChange={handleChange}
+            disabled={loading} 
+            sx={{ mb: 2 }} 
+            required
           />
           
-          <TextField fullWidth label="Confirm Password" type="password" name="confirmPassword" value={formData.confirmPassword}
-            onChange={handleChange} disabled={loading} sx={{ mb: 3 }} error={!!error && error.includes('match')}
+          <TextField 
+            fullWidth 
+            label="Password *" 
+            type="password" 
+            name="password" 
+            value={formData.password} 
+            onChange={handleChange} 
+            disabled={loading}  
+            sx={{ mb: 2 }} 
+            required
           />
           
-          <Button type="submit" fullWidth variant="contained" disabled={loading}>
+          <TextField 
+            fullWidth 
+            label="First Name" 
+            name="firstName" 
+            value={formData.firstName} 
+            onChange={handleChange}
+            disabled={loading} 
+            sx={{ mb: 2 }}
+          />
+          
+          <TextField 
+            fullWidth 
+            label="Last Name" 
+            name="lastName" 
+            value={formData.lastName} 
+            onChange={handleChange}
+            disabled={loading} 
+            sx={{ mb: 2 }}
+          />
+          
+          <TextField 
+            fullWidth 
+            label="Age" 
+            name="age" 
+            type="number"
+            value={formData.age} 
+            onChange={handleChange}
+            disabled={loading} 
+            sx={{ mb: 3 }}
+          />
+          
+          <Button 
+            type="submit" 
+            fullWidth 
+            variant="contained" 
+            disabled={loading || !formData.username || !formData.email || !formData.password}
+          >
             {loading ? 'Creating Account...' : 'Create Account'}
           </Button>
 
-          <Button fullWidth variant="text" onClick={() => navigate('/login')} disabled={loading} sx={{ mt: 2 }} >
+          <Button 
+            fullWidth 
+            variant="text" 
+            onClick={() => navigate('/login')} 
+            disabled={loading} 
+            sx={{ mt: 2 }} 
+          >
             Back to Login
           </Button>
         </Box>

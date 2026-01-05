@@ -55,14 +55,25 @@ export const dummyJsonApi = createApi({
       query: (credentials) => ({
         url: 'auth/login',
         method: 'POST',
-        body: credentials,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(credentials),
       }),
       invalidatesTags: ['Auth'],
+      transformResponse: (response) => {
+        if (response.token) {
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('currentUser', JSON.stringify(response));
+        }
+        return response;
+      },
     }),
 
     getCurrentUser: builder.query({
-      query: () => ({url: 'auth/me',
-        headers: {},
+      query: () => ({
+        url: 'auth/me',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
       }),
       providesTags: ['Auth'],
     }),

@@ -2,15 +2,16 @@ import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, TextField, IconButton, Typography, Box, Menu, MenuItem } from '@mui/material';
 import { Search, ShoppingCart, Person } from '@mui/icons-material';
+import { authService } from '../utils/auth';
 
 function Header({ onSearch = () => {} }) {
   const [searchInput, setSearchInput] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
-  const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-  const isLoggedIn = !!currentUser;
+  const currentUser = authService.getCurrentUser();
+  const isLoggedIn = authService.isAuthenticated();
 
-  const debounce = (func, delay) => {
+const debounce = (func, delay) => {
     let timeout;
     return (...args) => {
       clearTimeout(timeout);
@@ -42,9 +43,9 @@ function Header({ onSearch = () => {} }) {
   const handleUserMenuClose = () => {
     setAnchorEl(null);
   };
-
+  
   const handleLogout = () => {
-    localStorage.removeItem('currentUser');
+    authService.logout();
     navigate('/login');
     handleUserMenuClose();
   };
@@ -91,7 +92,7 @@ function Header({ onSearch = () => {} }) {
 
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleUserMenuClose}>
           <MenuItem onClick={handleProfileClick}>
-            Profile ({currentUser?.username})
+            Profile ({currentUser?.username || currentUser?.firstName})
           </MenuItem>
           <MenuItem onClick={handleLogout}>
             Logout
