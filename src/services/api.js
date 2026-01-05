@@ -9,12 +9,26 @@ export const dummyJsonApi = createApi({
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
       }
+      headers.set('Content-Type', 'application/json');
       return headers;
     },
   }),
   tagTypes: ['Product', 'User', 'Auth'],
   endpoints: (builder) => ({
-    
+    login: builder.mutation({
+      query: (credentials) => ({
+        url: 'auth/login',
+        method: 'POST',
+        body: JSON.stringify(credentials),
+      }),
+      invalidatesTags: ['Auth'],
+      transformResponse: (response) => {
+        localStorage.setItem('token', response.accessToken || response.token);
+        localStorage.setItem('currentUser', JSON.stringify(response));
+        return response;
+      },
+    }),
+
     getProducts: builder.query({
       query: ({ limit = 30, skip = 0, search = '' } = {}) => {
         if (search) {
@@ -36,70 +50,11 @@ export const dummyJsonApi = createApi({
       providesTags: (result, error, id) => [{ type: 'Product', id }],
     }),
 
-    getProductsByCategory: builder.query({
-      query: (category) => `products/category/${category}`,
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.products.map(({ id }) => ({ type: 'Product', id })),
-              { type: 'Product', id: 'CATEGORY_LIST' },
-            ]
-          : [{ type: 'Product', id: 'CATEGORY_LIST' }],
-    }),
-
-    getCategories: builder.query({
-      query: () => 'products/categories',
-    }),
-
-    login: builder.mutation({
-      query: (credentials) => ({
-        url: 'auth/login',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials),
-      }),
-      invalidatesTags: ['Auth'],
-      transformResponse: (response) => {
-        if (response.token) {
-          localStorage.setItem('token', response.token);
-          localStorage.setItem('currentUser', JSON.stringify(response));
-        }
-        return response;
-      },
-    }),
-
-    getCurrentUser: builder.query({
-      query: () => ({
-        url: 'auth/me',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      }),
-      providesTags: ['Auth'],
-    }),
-
-    getUsers: builder.query({
-      query: ({ limit = 0, skip = 0 } = {}) => 
-        `users${limit ? `?limit=${limit}&skip=${skip}` : ''}`,
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.users.map(({ id }) => ({ type: 'User', id })),
-              { type: 'User', id: 'LIST' },
-            ]
-          : [{ type: 'User', id: 'LIST' }],
-    }),
-
-    getUser: builder.query({
-      query: (id) => `users/${id}`,
-      providesTags: (result, error, id) => [{ type: 'User', id }],
-    }),
-
-    addProduct: builder.mutation({
+    createProduct: builder.mutation({
       query: (product) => ({
         url: 'products/add',
         method: 'POST',
-        body: product,
+        body: JSON.stringify(product),
       }),
       invalidatesTags: [{ type: 'Product', id: 'LIST' }],
     }),
@@ -108,9 +63,12 @@ export const dummyJsonApi = createApi({
       query: ({ id, ...updates }) => ({
         url: `products/${id}`,
         method: 'PUT',
-        body: updates,
+        body: JSON.stringify(updates),
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Product', id }],
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Product', id },
+        { type: 'Product', id: 'LIST' }
+      ],
     }),
 
     deleteProduct: builder.mutation({
@@ -120,22 +78,26 @@ export const dummyJsonApi = createApi({
       }),
       invalidatesTags: [{ type: 'Product', id: 'LIST' }],
     }),
+
+    getCategories: builder.query({
+      query: () => 'products/categories',
+    }),
+
+    getProductsByCategory: builder.query({
+      query: (category) => `products/category/${category}`,
+    }),
   }),
 });
 
 export const {
   useGetProductsQuery,
   useGetProductQuery,
-  useGetProductsByCategoryQuery,
   useGetCategoriesQuery,
+  useGetProductsByCategoryQuery,
   
   useLoginMutation,
-  useGetCurrentUserQuery,
   
-  useGetUsersQuery,
-  useGetUserQuery,
-  
-  useAddProductMutation,
+  useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
 } = dummyJsonApi;

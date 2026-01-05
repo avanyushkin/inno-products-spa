@@ -1,9 +1,6 @@
-export const authService = {
-  setCurrentUser: (userData) => {
-    if (userData.token) {
-      localStorage.setItem('token', userData.token);
-    }
-    localStorage.setItem('currentUser', JSON.stringify(userData));
+export const authUtils = {
+  isAuthenticated: () => {
+    return !!localStorage.getItem('token');
   },
 
   getCurrentUser: () => {
@@ -15,17 +12,14 @@ export const authService = {
     }
   },
 
-  isAuthenticated: () => {
-    return !!localStorage.getItem('token');
+  isAdmin: () => {
+    const user = authUtils.getCurrentUser();
+    const adminUsers = ['atuny0', 'admin'];
+    return user && adminUsers.includes(user.username);
   },
 
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('currentUser');
-  },
-
-  getAuthHeaders: () => {
-    const token = localStorage.getItem('token');
-    return token ? { 'Authorization': `Bearer ${token}` } : {};
   }
 };
