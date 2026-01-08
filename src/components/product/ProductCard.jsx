@@ -8,7 +8,7 @@ const ProductCard = ({ product }) => {
   return (
     <Card 
       sx={{ height: '100%', display: 'flex', flexDirection: 'column', cursor: 'pointer', '&:hover': { boxShadow: 3 } }}
-      onClick={() => navigate(`/product/${product.id}`)}
+      onClick={(e) => e.stopPropagation()}
     >
       <CardMedia component="img" height="200" image={product.images} alt={product.title} sx={{ objectFit: 'contain', bgcolor: '#f5f5f5' }} />
       
@@ -21,7 +21,7 @@ const ProductCard = ({ product }) => {
       </CardContent>
       
       <Box sx={{ p: 2, pt: 0 }}>
-        <Button fullWidth variant="contained" onClick={(e) => e.stopPropagation()}> View Details </Button>
+        <Button fullWidth variant="contained" onClick={() => navigate(`/product/${product.id}`)}> View Details </Button>
       </Box>
     </Card>
   );

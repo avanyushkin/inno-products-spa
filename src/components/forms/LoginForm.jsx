@@ -21,20 +21,24 @@ function LoginForm() {
       const response = await fetch('https://dummyjson.com/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+        })
       });
 
       const data = await response.json();
 
-      if (response.ok && data.accessToken) {
-        localStorage.setItem('token', data.accessToken);
+      if (response.ok && (data.accessToken || data.token)) {
+        localStorage.setItem('token', data.accessToken || data.token);
         localStorage.setItem('currentUser', JSON.stringify(data));
         navigate('/home');
       } else {
         setError(data.message || 'Login failed');
       }
-    } catch {
+    } catch (err) {
       setError('Connection error');
+      console.error('Login error:', err);
     } finally {
       setLoading(false);
     }
