@@ -3,6 +3,7 @@
 A modern e-commerce web application built with React and Material UI, featuring product browsing, search, user authentication, and detailed product views.
 
 ## Live Demo
+[shiny-flan-2ab1d2.netlify.app](https://shiny-flan-2ab1d2.netlify.app)
 
 ## Tech Stack
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
