@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, TextField, Button, Typography, Paper } from '@mui/material';
+import { API_BASE_URL } from '../../config/constants.js';
 
 function LoginForm() {
   const [formData, setFormData] = useState({
@@ -18,7 +19,7 @@ function LoginForm() {
     setError('');
 
     try {
-      const response = await fetch('https://dummyjson.com/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
