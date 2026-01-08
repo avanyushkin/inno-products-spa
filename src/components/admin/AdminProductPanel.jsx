@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { 
   Box, Typography, Button, TextField, Alert, 
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-  Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle 
+  Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+  Snackbar 
 } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
 import { 
@@ -17,6 +18,7 @@ function AdminProductPanel() {
   const [editData, setEditData] = useState({ title: '', price: '' });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
+  const [notification, setNotification] = useState({ open: false, message: '', type: 'success' });
 
   const { data, isLoading, refetch } = useGetProductsQuery({ limit: 50 });
   const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
@@ -27,6 +29,14 @@ function AdminProductPanel() {
 
   if (!isAdmin) return <Alert severity="error">Admin access required</Alert>;
   if (isLoading) return <Typography>Loading...</Typography>;
+
+  const showNotification = (message, type = 'success') => {
+    setNotification({ open: true, message, type });
+  };
+
+  const handleCloseNotification = () => {
+    setNotification({ ...notification, open: false });
+  };
 
   const handleEditClick = (product) => {
     setEditingId(product.id);
@@ -42,9 +52,11 @@ function AdminProductPanel() {
         price: parseFloat(editData.price) 
       }).unwrap();
       setEditingId(null);
+      showNotification('Product updated successfully!');
       refetch();
     } catch (error) {
       console.error('Update error:', error);
+      showNotification('Failed to update product', 'error');
     }
   };
 
@@ -58,9 +70,11 @@ function AdminProductPanel() {
     
     try {
       await deleteProduct(productToDelete.id).unwrap();
+      showNotification(`Product "${productToDelete.title}" deleted successfully!`);
       refetch();
     } catch (error) {
       console.error('Delete error:', error);
+      showNotification('Failed to delete product', 'error');
     } finally {
       setDeleteDialogOpen(false);
       setProductToDelete(null);
@@ -195,12 +209,22 @@ function AdminProductPanel() {
         </DialogActions>
       </Dialog>
 
-      <Alert severity="info" sx={{ mt: 3 }}>
-        <Typography variant="body2">
-          Note: This is a demo with DummyJSON API. Products will not be permanently deleted 
-          from the database but will appear deleted in this session.
-        </Typography>
-      </Alert>
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={3000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={handleCloseNotification} 
+          severity={notification.type}
+          sx={{ width: '100%' }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
+
+     
     </Box>
   );
 }
