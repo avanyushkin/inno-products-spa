@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { 
   Box, Typography, Button, TextField, Alert, 
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper 
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+  Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+  Snackbar 
 } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
 import { 
@@ -14,17 +16,27 @@ import { authUtils } from '../../utils/auth';
 function AdminProductPanel() {
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({ title: '', price: '' });
-  const [deletingId, setDeletingId] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+  const [notification, setNotification] = useState({ open: false, message: '', type: 'success' });
 
   const { data, isLoading, refetch } = useGetProductsQuery({ limit: 50 });
-  const [updateProduct] = useUpdateProductMutation();
-  const [deleteProduct] = useDeleteProductMutation();
+  const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
+  const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
   const products = data?.products || [];
   const isAdmin = authUtils.isAdmin();
 
   if (!isAdmin) return <Alert severity="error">Admin access required</Alert>;
   if (isLoading) return <Typography>Loading...</Typography>;
+
+  const showNotification = (message, type = 'success') => {
+    setNotification({ open: true, message, type });
+  };
+
+  const handleCloseNotification = () => {
+    setNotification({ ...notification, open: false });
+  };
 
   const handleEditClick = (product) => {
     setEditingId(product.id);
@@ -40,20 +52,38 @@ function AdminProductPanel() {
         price: parseFloat(editData.price) 
       }).unwrap();
       setEditingId(null);
+      showNotification('Product updated successfully!');
       refetch();
     } catch (error) {
       console.error('Update error:', error);
+      showNotification('Failed to update product', 'error');
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDeleteClick = (product) => {
+    setProductToDelete(product);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!productToDelete) return;
+    
     try {
-      await deleteProduct(id).unwrap();
-      setDeletingId(null);
+      await deleteProduct(productToDelete.id).unwrap();
+      showNotification(`Product "${productToDelete.title}" deleted successfully!`);
       refetch();
     } catch (error) {
       console.error('Delete error:', error);
+      showNotification('Failed to delete product', 'error');
+    } finally {
+      setDeleteDialogOpen(false);
+      setProductToDelete(null);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteDialogOpen(false);
+    setProductToDelete(null);
   };
 
   return (
@@ -81,6 +111,7 @@ function AdminProductPanel() {
                       value={editData.title}
                       onChange={(e) => setEditData({...editData, title: e.target.value})}
                       size="small"
+                      fullWidth
                     />
                   ) : product.title}
                 </TableCell>
@@ -97,21 +128,46 @@ function AdminProductPanel() {
                 </TableCell>
                 <TableCell>
                   {editingId === product.id ? (
-                    <Button onClick={handleSaveEdit} size="small">Save</Button>
+                    <Button 
+                      onClick={handleSaveEdit} 
+                      size="small"
+                      variant="contained"
+                      disabled={isUpdating}
+                    >
+                      {isUpdating ? 'Saving...' : 'Save'}
+                    </Button>
                   ) : (
-                    <Button size="small" onClick={() => handleEditClick(product)} startIcon={<Edit />}>
+                    <Button 
+                      size="small" 
+                      onClick={() => handleEditClick(product)}
+                      startIcon={<Edit />}
+                      variant="outlined"
+                    >
                       Edit
                     </Button>
                   )}
+                  
                   <Button 
                     size="small" 
                     color="error" 
-                    onClick={() => setDeletingId(product.id)}
+                    onClick={() => handleDeleteClick(product)}
                     startIcon={<Delete />}
+                    variant="outlined"
                     sx={{ ml: 1 }}
+                    disabled={isDeleting}
                   >
                     Delete
                   </Button>
+                  
+                  {editingId === product.id && (
+                    <Button 
+                      size="small" 
+                      onClick={() => setEditingId(null)}
+                      sx={{ ml: 1 }}
+                    >
+                      Cancel
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -119,21 +175,56 @@ function AdminProductPanel() {
         </Table>
       </TableContainer>
 
-      {deletingId && (
-        <Box sx={{ mt: 2, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-          <Typography>Delete product #{deletingId}?</Typography>
-          <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
-            <Button onClick={() => setDeletingId(null)}>Cancel</Button>
-            <Button 
-              variant="contained" 
-              color="error" 
-              onClick={() => handleDelete(deletingId)}
-            >
-              Confirm Delete
-            </Button>
-          </Box>
-        </Box>
-      )}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleCancelDelete}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          Confirm Delete
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete product <strong>"{productToDelete?.title}"</strong>?
+            <br />
+            <Typography variant="caption" color="error">
+              This action cannot be undone.
+            </Typography>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelDelete} disabled={isDeleting}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleConfirmDelete} 
+            color="error" 
+            variant="contained"
+            disabled={isDeleting}
+            autoFocus
+          >
+            {isDeleting ? 'Deleting...' : 'Delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={3000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={handleCloseNotification} 
+          severity={notification.type}
+          sx={{ width: '100%' }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
+
+     
     </Box>
   );
 }

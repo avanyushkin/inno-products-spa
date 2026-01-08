@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, TextField, Button, Typography, Paper, Alert } from '@mui/material';
+import { API_BASE_URL } from '../../config/constants.js';
 
 function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -42,7 +43,7 @@ function RegisterForm() {
     setError("");
     
     try {
-      const response = await fetch('https://dummyjson.com/users/add', {
+      const response = await fetch(`${API_BASE_URL}/users/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
