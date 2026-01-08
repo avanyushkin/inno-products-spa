@@ -42,24 +42,3 @@ yarn start
 
 4. Open http://localhost:3000 in your browser
 
-# For Backend (JSON Server)
-1. Install JSON Server globally
-```
-npm install -g json-server
-```
-
-2. Create a db.json file in the root
-```
-{
-  "users": []
-}
-```
-
-3. Run JSON Server
-```
-json-server --watch db.json --port 3001
-```
-
-The API will be available at http://localhost:3001/users
-
-
