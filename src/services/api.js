@@ -1,10 +1,15 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { API_BASE_URL } from '../config/constants.js';
+
+const TAG_TYPES = {
+  PRODUCT: 'Product',
+  USER: 'User',
+  AUTH: 'Auth',
+};
 
 export const dummyJsonApi = createApi({
   reducerPath: 'dummyJsonApi',
   baseQuery: fetchBaseQuery({ 
-    baseUrl: `${API_BASE_URL}/`,
+    baseUrl: 'https://dummyjson.com/',
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
       if (token) {
@@ -14,7 +19,7 @@ export const dummyJsonApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Product', 'User', 'Auth'],
+  tagTypes: [TAG_TYPES.PRODUCT, TAG_TYPES.USER, TAG_TYPES.AUTH],
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (credentials) => ({
@@ -22,7 +27,7 @@ export const dummyJsonApi = createApi({
         method: 'POST',
         body: JSON.stringify(credentials),
       }),
-      invalidatesTags: ['Auth'],
+      invalidatesTags: [TAG_TYPES.AUTH],
       transformResponse: (response) => {
         localStorage.setItem('token', response.accessToken || response.token);
         localStorage.setItem('currentUser', JSON.stringify(response));
@@ -40,15 +45,15 @@ export const dummyJsonApi = createApi({
       providesTags: (result) =>
         result
           ? [
-              ...result.products.map(({ id }) => ({ type: 'Product', id })),
-              { type: 'Product', id: 'LIST' },
+              ...result.products.map(({ id }) => ({ type: TAG_TYPES.PRODUCT, id })),
+              { type: TAG_TYPES.PRODUCT, id: 'LIST' },
             ]
-          : [{ type: 'Product', id: 'LIST' }],
+          : [{ type: TAG_TYPES.PRODUCT, id: 'LIST' }],
     }),
 
     getProduct: builder.query({
       query: (id) => `products/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Product', id }],
+      providesTags: (result, error, id) => [{ type: TAG_TYPES.PRODUCT, id }],
     }),
 
     createProduct: builder.mutation({
@@ -57,7 +62,7 @@ export const dummyJsonApi = createApi({
         method: 'POST',
         body: JSON.stringify(product),
       }),
-      invalidatesTags: [{ type: 'Product', id: 'LIST' }],
+      invalidatesTags: [{ type: TAG_TYPES.PRODUCT, id: 'LIST' }],
     }),
 
     updateProduct: builder.mutation({
@@ -67,8 +72,8 @@ export const dummyJsonApi = createApi({
         body: JSON.stringify(updates),
       }),
       invalidatesTags: (result, error, { id }) => [
-        { type: 'Product', id },
-        { type: 'Product', id: 'LIST' }
+        { type: TAG_TYPES.PRODUCT, id },
+        { type: TAG_TYPES.PRODUCT, id: 'LIST' }
       ],
     }),
 
@@ -78,17 +83,21 @@ export const dummyJsonApi = createApi({
         method: 'DELETE',
       }),
       invalidatesTags: (result, error, id) => [
-        { type: 'Product', id },
-        { type: 'Product', id: 'LIST' }
+        { type: TAG_TYPES.PRODUCT, id },
+        { type: TAG_TYPES.PRODUCT, id: 'LIST' }
       ],
     }),
 
     getCategories: builder.query({
       query: () => 'products/categories',
+      providesTags: [{ type: TAG_TYPES.PRODUCT, id: 'CATEGORIES' }],
     }),
 
     getProductsByCategory: builder.query({
       query: (category) => `products/category/${category}`,
+      providesTags: (result, error, category) => [
+        { type: TAG_TYPES.PRODUCT, id: `CATEGORY_${category}` }
+      ],
     }),
   }),
 });
@@ -105,3 +114,5 @@ export const {
   useUpdateProductMutation,
   useDeleteProductMutation,
 } = dummyJsonApi;
+
+export { TAG_TYPES };
