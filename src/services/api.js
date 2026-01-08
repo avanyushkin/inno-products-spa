@@ -76,7 +76,10 @@ export const dummyJsonApi = createApi({
         url: `products/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: [{ type: 'Product', id: 'LIST' }],
+      invalidatesTags: (result, error, id) => [
+        { type: 'Product', id },
+        { type: 'Product', id: 'LIST' }
+      ],
     }),
 
     getCategories: builder.query({

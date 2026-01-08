@@ -13,8 +13,9 @@ export const authUtils = {
   },
 
   isAdmin: () => {
+    console.log('logged in as admin');
     const user = authUtils.getCurrentUser();
-    const adminUsers = ['atuny0', 'admin'];
+    const adminUsers = ['atuny0', 'admin', 'michaelw'];
     return user && adminUsers.includes(user.username);
   },
 
